@@ -19,7 +19,7 @@ import { createStore } from "redux";
 import { Provider, connect } from "react-redux";
 import { composeWithDevTools } from "redux-devtools-extension";
 import rootReducer from "./reducers";
-import { setUser } from "./actions";
+import { setUser, clearUser } from "./actions";
 import Spinner from './components/Spinner';
 
 const store = createStore(rootReducer, composeWithDevTools());
@@ -31,11 +31,15 @@ class Root extends React.Component {
         this.props.setUser(user);
         this.props.history.push("/");
       }
+      else {
+          this.props.history.push('/login');
+          this.props.clearUser();
+      }
     });
   }
 
   render() {
-    return this.props.isLoading ? <Spinner /> : (
+    return this.props.isLoading ? <Spinner message={this.props.message}/> : (
       <Switch>
         <Route exact path="/" component={App}/>
         <Route path="/login" component={Login} />
@@ -46,13 +50,18 @@ class Root extends React.Component {
 }
 
 const mapStateToProps = state => ({
-    isLoading: state.user.isLoading
-})
+    isLoading: state.user.isLoading,
+    message: 'Please wait, loading chat...'
+});
+
+const mapDispatchToProps = {
+    setUser, clearUser
+};
 
 const RootWithAuth = withRouter(
   connect(
     mapStateToProps,
-    { setUser }
+    mapDispatchToProps
   )(Root)
 );
 
